@@ -245,6 +245,35 @@ def readwav(filename):
     data = np.asfarray(wavd) / 32768.0  
     return data, sr
 
+def audioread(filename, targetsr=None):
+    """
+    Read a soundfile of either WAV or SPH, based on filename
+    returns d, sr
+    """
+    fileName, fileExtension = os.path.splitext(filename)
+    if fileExtension == ".wav":
+        data, sr = readwav(filename)
+    elif fileExtension == ".sph":
+        data, sr = readsph(filename)
+    else:
+        raise NameError( ("Cannot determine type of infile " +
+                          filename) )
+    # Maybe fix sample rate
+    #if srate == 16000 and self.sbpca.srate == 8000:
+    if targetsr != None and sr != targetsr:
+        # Right now, only downsample by integer numbers
+        decimfact = int(np.round(sr/targetsr))
+        data = scipy.signal.decimate(np.r_[data[1:], 0], 
+                                     decimfact, ftype='fir')
+        # slight trim to ss.decimate to make its phase align 
+        # to matlab's resample 
+        # for case of resampling 16 kHz down to 8 kHz
+        delay = 7
+        data = np.r_[data[delay:], np.zeros(delay)]
+        sr = sr/decimfact
+
+    return data, sr
+
 def main(argv):
     """ Main routine to apply from command line """
     if len(argv) != 2:
@@ -253,14 +282,7 @@ def main(argv):
 
     inwavfile = argv[1]
 
-    fileName, fileExtension = os.path.splitext(inwavfile)
-    if fileExtension == ".wav":
-        data, sr = readwav(inwavfile)
-    elif fileExtension == ".sph":
-        data, sr = readsph(inwavfile)
-    else:
-        raise NameError( ("Cannot determine type of infile " +
-                          inwavfile) )
+    data, sr = audioread(inwavfile, targetsr=8000)
 
     # Apply
     ftrs = ehist_dynrange(data, sr)
