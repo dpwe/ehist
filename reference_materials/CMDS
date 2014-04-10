@@ -1,0 +1,12 @@
+  dpwe-mbp:~drspeech/data/swordfish/code/conditions/wer_by_condition > foreach f ( OP1_102 OP1_103 OP1_201 OP1_203 OP1_206 )
+foreach? scp -p login.icsi.berkeley.edu:/u/drspeech/data/swordfish/corpora/BABEL_${f}/conversational/reference_materials/demographics.tsv ${f}-demographics.tsv
+foreach? end
+  dpwe-mbp:~drspeech/data/swordfish/code/conditions/wer_by_condition > cat OP1*tsv | awk '{print $9}' | sort | uniq -c
+ 352 CAR_KIT
+ 179 HOME_OFFICE_LANDLINE
+2223 HOME_OFFICE_MOBILE
+ 217 MICROPHONE
+ 708 PUBLIC_PLACE
+ 543 STREET
+ 338 VEHICLE
+   5 envType

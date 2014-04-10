@@ -1,0 +1,13 @@
+ - Adding new ASR WER results
+
+   TBD
+
+ - Adding new audio sets
+   - we assume analysis runs on the LLP Dev subset
+   - 
+>> llp = '/u/drspeech/data/swordfish/corpora/BABEL_OP1_204_LLP/conversational/dev/audio';
+>> calc_ehist_ftrs(llp)
+>> !mv  ftrsout/u/drspeech/data/swordfish/corpora/BABEL_OP1_204_LLP corpora/
+>> !cp -p ../../corpora/BABEL_OP1_204_LLP/conversational/reference_materials/demographics.tsv reference_materials/OP1_204-demographics.tsv
+>> disp_lp('OP1_204');
+
