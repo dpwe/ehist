@@ -201,6 +201,17 @@ def ehist_dynrange(d, sr):
     # Calculate difference of 5th and 95th percentiles
     pctls = [0.05, 0.95]
     hp = histpercentile(X, pctls)
+    ## Should you want to plot this...
+    ## import matplotlib.pyplot as plt
+    #fig, ax = plt.subplots()
+    ## Image at the back
+    #ax.imshow(X, origin='bottomleft')
+    #ax.autoscale(False)
+    ## Overplot the percentiles
+    #ax.plot(range(np.size(hp, axis=1)), hp.T, '-w')
+    #plt.show()
+
+    # Space between percentiles
     dynrng = np.diff(hp, axis=0)[0]
 
     # Find bin edges
