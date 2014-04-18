@@ -220,7 +220,7 @@ def mel_hist(d, sr, nfft=256, win=None, hop=None, nfilts=40, mindb=-100., maxdb=
 
     return melHist, edges, D, DmeldB, melmx, freqs
 
-###############################################
+########### actually modify signal to map mel histograms ########
 from scipy.ndimage.filters import median_filter
 
 def ehist_equalize_melhist(d, sr, refMelHist, edges):
@@ -243,11 +243,11 @@ def ehist_equalize_melhist(d, sr, refMelHist, edges):
     # Zero values in denominator will match to zeros in numerator, 
     # so it's OK to drop them
     Dmask = DmappedInFFT / (DmelInFFT + (DmelInFFT==0))
-    # Filter out impulsive noise
+    # Median filter to remove short blips in gain
     medfiltwin = 7
     DmaskF = median_filter(Dmask, size=(1, medfiltwin))
     # Now scale each FFT val by their ratio
-    Dmod = D  * DmaskF
+    Dmod = D * DmaskF
     # and resynthesize
     nfft = 2*(np.size(D, axis=0)-1)
     win = nfft
@@ -336,6 +336,12 @@ def audiowrite(data, sr, filename):
     else:
         nchans = 1
     f = Sndfile(filename, 'w', format, nchans, sr)
+    if np.max(np.abs(data)) >= 0.999:
+        clippos = data >= 0.999
+        data[clippos] = 0.999
+        clipneg = data <= -0.999
+        data[clipneg] = -0.999
+        print "audiowrite: WARNING: %d samples clipped" % np.sum(np.r_[clippos, clipneg])
     f.write_frames(data)
     f.close()
 
