@@ -330,7 +330,10 @@ def audiowrite(data, sr, filename):
     Write audio data to a file.  Infer type from name.
     """
     stem, ext = os.path.splitext(filename)
-    format = Format(ext[1:])
+    fmt = ext[1:]
+    if fmt == "sph":
+        fmt = "nist"
+    format = Format(fmt)
     if len(np.shape(data)) > 1:
         nchans = np.size(data, axis = 0)
     else:
