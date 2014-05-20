@@ -287,19 +287,21 @@ def audioread(filename, targetsr=None):
 
 def main(argv):
     """ Main routine to apply from command line """
-    if len(argv) != 2:
+    if len(argv) < 2:
         raise NameError( ("Usage: " + argv[0] + 
-                          " inputsound.{wav,sph}") )
+                          " inputsound.{wav,sph} [sound2 ...]") )
 
-    inwavfile = argv[1]
+    inwavfiles = argv[1:]
 
-    data, sr = audioread(inwavfile, targetsr=8000)
+    for inwavfile in inwavfiles:
 
-    # Apply
-    ftrs = ehist_dynrange(data, sr)
+        data, sr = audioread(inwavfile, targetsr=8000)
 
-    # Write the data out
-    print "%s %.1f %.1f %.1f %.1f %.1f" % (inwavfile, ftrs[0], ftrs[1], ftrs[2], ftrs[3], ftrs[4])
+        # Apply
+        ftrs = ehist_dynrange(data, sr)
+
+        # Write the data out
+        print "%s %.1f %.1f %.1f %.1f %.1f" % (inwavfile, ftrs[0], ftrs[1], ftrs[2], ftrs[3], ftrs[4])
 
 # Actually run main
 if __name__ == "__main__":
