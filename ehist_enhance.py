@@ -257,14 +257,20 @@ def ehist_equalize_melhist(d, sr, refMelHist, edges):
 
 ########### main function ##############
 
-def ehist_enhance(infile, inref, outfile):
+def ehist_enhance(infile, inrefs, outfile):
     """
     Enhance the input file by matching its mel-subband energy histograms 
     to those of the reference file.  Write the output file
     """
     # build the reference histogram
-    dref, srref = audioread(inref)
-    refHist, edges, Dr, Drmel, melmx, freqs = mel_hist(dref, srref)
+    refHist = None
+    for inref in inrefs:
+        dref, srref = audioread(inref)
+        newrefHist, edges, Dr, Drmel, melmx, freqs = mel_hist(dref, srref)
+        if refHist == None:
+            refHist = newrefHist
+        else:
+            refHist += newrefHist
     # read in the data to modify
     d, sr = audioread(infile)
     # modify
@@ -348,15 +354,51 @@ def audiowrite(data, sr, filename):
     f.write_frames(data)
     f.close()
 
+# Let's define a function to process a list of string arguments
+# after http://nbviewer.ipython.org/github/craffel/crucialpython/blob/master/week9/argparse.ipynb
+import argparse
+def process_arguments(args):
+
+    # First, construct the parser
+    parser = argparse.ArgumentParser(description="Equalize the subband energy histogram of an input soundfile to match that of one or more reference soundfiles")
+    # Default to three positional arguments
+    parser.add_argument('insound', nargs='?', help='Input soundfile');
+    parser.add_argument('-i', '--infile', help='Input soundfile');
+
+    parser.add_argument('refsound', nargs='?', help='Reference soundfiles');
+    parser.add_argument('-r', '--reffiles', nargs='*', help='Reference soundfiles');
+
+    parser.add_argument('outsound', nargs='?', help='Output soundfile');
+    parser.add_argument('-o', '--outfile', help='Output soundfile');
+    
+    # Finally, apply the parser to the argument list
+    options = parser.parse_args(args)
+    
+    # And return it as a dict
+    return vars(options)
+
 def main(argv):
     """ Main routine to apply from command line """
-    if len(argv) != 4:
-        raise NameError( ("Usage: " + argv[0] + 
-                          " inputsound.wav refsound.wav outsound.wav") )
-    insound = argv[1]
-    refsound = argv[2]
-    outsound = argv[3]
-    ehist_enhance(insound, refsound, outsound)
+
+    params = process_arguments(argv[1:])
+
+    # Support both positional and key/val arguments
+    if params['insound'] != None:
+        insound = params['insound']
+    else:
+        insound = params['infile']
+
+    if params['refsound'] != None:
+        refsounds = [params['refsound']];
+    else:
+        refsounds = params['reffiles']
+
+    if params['outsound'] != None:
+        outsound = params['outsound']
+    else:
+        outsound = params['outfile']
+
+    ehist_enhance(insound, refsounds, outsound)
 
 
 # Actually run main
