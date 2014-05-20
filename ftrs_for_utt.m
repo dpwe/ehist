@@ -13,19 +13,24 @@ condix = [];
 if iscell(utts)
   % list of utts - plot them all
   N = length(utts);
-  for i = 1:N
-    [XX,CC,ww] = ftrs_for_utt(utts{i}, dem, asr);
-    if i == 1
-      X = XX; CV = CC; wer = ww;
-    else
-      X = X + XX; CV = CV + CC; wer = wer + ww;
+  if N > 0
+    for i = 1:N
+      [XX,CC,ww] = ftrs_for_utt(utts{i}, dem, asr);
+      if i == 1
+        X = XX; CV = CC; wer = ww;
+      else
+        X = X + XX; CV = CV + CC; wer = wer + ww;
+      end
     end
+    X = X/N;
+    CV =CV/N;
+    wer = wer/N;
+  else
+    disp('Warn: ftrs_for_utt: no utterances');
+    X = [];
+    CV = [];
+    wer = 0;
   end
-  
-  X = X/N;
-  CV =CV/N;
-  wer = wer/N;
-  
 else
   % Single utterance
   utt = utts;
